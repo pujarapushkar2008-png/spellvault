@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>SpellVault</title>
+  
+  <!-- Mobile & PWA Optimization with Custom SVG Safe Logo -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SpellVault">
+  <link rel="apple-touch-icon" href="logo.svg">
+  <meta name="theme-color" content="#080b14">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="vault-styles.css">
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+</head>
+<body>
+
+  <!-- Three.js 3D Background: Iridescent Orb, Holographic Rings & Liquid Chrome Ribbons -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCREEN 0 — Master Passphrase Gate (Safe Dial Emblem)
+       ══════════════════════════════════════════════════════════ -->
+  <div id="screen-gate" class="screen">
+    <div class="center-box">
+      <!-- 3D Safe Vault Wheel Emblem -->
+      <div class="safe-emblem-3d">
+        <div class="vault-dial-ring"></div>
+        <div class="vault-handle"></div>
+        <span class="vault-center-core">🔒</span>
+      </div>
+      <h1 class="brand-gradient-title">SpellVault</h1>
+      <p class="muted" style="color: var(--text-1);">Enter master passphrase to unlock vault</p>
+      
+      <div class="input-wrap-center">
+        <input type="password" id="gate-input" class="modern-input mono-font" placeholder="Passphrase" autocomplete="off">
+        <button type="button" id="gate-eye" class="eye-toggle-btn">SHOW</button>
+      </div>
+      <button id="gate-btn" class="btn-primary-glow">Unlock Vault</button>
+      <p id="gate-error" class="error-text"></p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCREEN 1 — Welcome Screen (Holographic Glass Shield)
+       ══════════════════════════════════════════════════════════ -->
+  <div id="screen-welcome" class="screen">
+    <div class="center-box welcome-box">
+      <!-- 1. Holographic Glass Shield Element -->
+      <div class="shield-3d-visual">
+        <svg class="holographic-shield-svg" viewBox="0 0 100 120" fill="none">
+          <path d="M50 4L90 22V60C90 88 50 116 50 116C50 116 10 88 10 60V22L50 4Z" fill="url(#sh-grad)" fill-opacity="0.22" stroke="#8B5CF6" stroke-width="2.5"/>
+          <path d="M50 14L82 28V58C82 79 50 102 50 102C50 102 18 79 18 58V28L50 14Z" stroke="#22C7A5" stroke-width="1.8" stroke-dasharray="4 3"/>
+          <circle cx="50" cy="58" r="14" fill="#8B5CF6" fill-opacity="0.28" stroke="#FFF" stroke-width="1.5"/>
+          <text x="50" y="63" text-anchor="middle" font-size="14" fill="#FFF">🔐</text>
+          <defs>
+            <linearGradient id="sh-grad" x1="10" y1="4" x2="90" y2="116" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#8B5CF6"/>
+              <stop offset="1" stop-color="#22C7A5"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      <p class="welcome-hi">Hi</p>
+      <h1 class="welcome-name">SpellVault</h1>
+      <p class="muted" style="color: var(--text-1); line-height: 1.6; max-width: 440px;">
+        Your personal offline password manager & digital safe.<br>
+        Everything is encrypted using AES-256 and kept on this device only.
+      </p>
+      <button id="welcome-btn" class="btn-primary-glow" style="margin-top: 18px;">Continue</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCREEN 2 — Mails Screen (Bento Cards + Command Palette UX)
+       ══════════════════════════════════════════════════════════ -->
+  <div id="screen-mails" class="screen">
+    <header class="top-bar">
+      <div class="brand-left">
+        <img src="logo.svg" alt="SpellVault" class="brand-icon-app">
+        <h2 class="logo-title">SpellVault</h2>
+      </div>
+      <div class="top-actions">
+        <button id="settings-btn" class="btn-icon" title="Settings & Safe">⚙️</button>
+      </div>
+    </header>
+
+    <!-- Command Palette Search Box -->
+    <div class="search-wrapper">
+      <div class="search-inner">
+        <span class="search-glass-icon">🔍</span>
+        <input type="text" id="mail-search" class="search-input" placeholder="Search mail accounts…">
+        <span class="cmd-badge">⌘K</span>
+      </div>
+    </div>
+
+    <!-- Quick Add Button -->
+    <div class="add-button-container">
+      <button id="add-mail-btn" class="btn-add">
+        <span class="plus-icon">+</span>
+        <span>Add a new mail</span>
+      </button>
+    </div>
+
+    <!-- Mails Bento Card List -->
+    <div id="mail-list" class="card-list"></div>
+
+    <!-- 4. Glassmorphic Vault Cube (Empty State) -->
+    <div id="mail-empty" class="empty-state">
+      <div class="cube-3d-scene">
+        <div class="vault-cube">
+          <div class="cube-face cube-front">📬</div>
+          <div class="cube-face cube-back">🔮</div>
+          <div class="cube-face cube-right">🔐</div>
+          <div class="cube-face cube-left">✦</div>
+          <div class="cube-face cube-top">⬡</div>
+          <div class="cube-face cube-bottom">◆</div>
+        </div>
+      </div>
+      <p class="empty-title">No mails yet</p>
+      <p class="muted" style="color: var(--text-1);">Tap "Add a new mail" to start organizing your app passwords.</p>
+    </div>
+
+    <!-- Mobile Floating Action Button (FAB) -->
+    <button class="mobile-fab" id="mail-fab" title="Add new mail">+</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCREEN 3 — Apps Screen (Under Selected Mail)
+       ══════════════════════════════════════════════════════════ -->
+  <div id="screen-apps" class="screen">
+    <header class="top-bar">
+      <button id="back-btn" class="btn-back" title="Back to Mails">←</button>
+      <div class="app-header-title-wrap">
+        <span class="sub-label">VAULT FOR</span>
+        <h2 id="app-mail-title" class="top-title"></h2>
+      </div>
+      <div class="top-actions">
+        <button id="edit-mail-btn" class="btn-icon" title="Edit mail">✏️</button>
+        <button id="delete-mail-btn" class="btn-icon btn-danger-icon" title="Delete mail">🗑️</button>
+      </div>
+    </header>
+
+    <!-- Command Palette Search Box -->
+    <div class="search-wrapper">
+      <div class="search-inner">
+        <span class="search-glass-icon">🔍</span>
+        <input type="text" id="app-search" class="search-input" placeholder="Search apps under this mail…">
+        <span class="cmd-badge">⌘K</span>
+      </div>
+    </div>
+
+    <div class="add-button-container">
+      <button id="add-app-btn" class="btn-add">
+        <span class="plus-icon">+</span>
+        <span>Add a new app</span>
+      </button>
+    </div>
+
+    <!-- Apps Bento Card List -->
+    <div id="app-list" class="card-list"></div>
+
+    <!-- 4. Glassmorphic Vault Cube (Empty State) -->
+    <div id="app-empty" class="empty-state">
+      <div class="cube-3d-scene">
+        <div class="vault-cube">
+          <div class="cube-face cube-front">🔑</div>
+          <div class="cube-face cube-back">📱</div>
+          <div class="cube-face cube-right">🔐</div>
+          <div class="cube-face cube-left">✦</div>
+          <div class="cube-face cube-top">◆</div>
+          <div class="cube-face cube-bottom">⬡</div>
+        </div>
+      </div>
+      <p class="empty-title">No apps saved under this mail yet</p>
+      <p class="muted" style="color: var(--text-1);">Tap "Add a new app" to store your first password.</p>
+    </div>
+
+    <!-- Mobile FAB -->
+    <button class="mobile-fab" id="app-fab" title="Add new app">+</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCREEN 4 — Settings & Safe (Progressive Disclosure)
+       ══════════════════════════════════════════════════════════ -->
+  <div id="screen-settings" class="screen">
+    <header class="top-bar">
+      <button id="settings-back-btn" class="btn-back" title="Back">←</button>
+      <h2 class="top-title">Settings & Safe</h2>
+      <div class="top-actions"></div>
+    </header>
+
+    <div class="settings-body">
+      <!-- Master App Lock Switch -->
+      <div class="setting-row card-glass tilt-card">
+        <div class="setting-info">
+          <span class="setting-label">Master App Lock</span>
+          <span class="setting-desc muted" style="color: var(--text-1);">Encrypt all stored data with a passphrase required at launch</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="app-lock-toggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Export Backup -->
+      <button id="export-btn" class="btn-setting card-glass tilt-card">
+        <div class="setting-btn-inner">
+          <span class="setting-btn-icon">📤</span>
+          <div>
+            <div class="setting-label">Export Backup (JSON)</div>
+            <div class="muted" style="font-size:12px; color: var(--text-1);">Save a copy of all passwords (plain or encrypted)</div>
+          </div>
+        </div>
+      </button>
+
+      <!-- Import Backup -->
+      <button id="import-btn" class="btn-setting card-glass tilt-card">
+        <div class="setting-btn-inner">
+          <span class="setting-btn-icon">📥</span>
+          <div>
+            <div class="setting-label">Import Backup (JSON)</div>
+            <div class="muted" style="font-size:12px; color: var(--text-1);">Restore from a previous backup file</div>
+          </div>
+        </div>
+      </button>
+      <input type="file" id="import-file" accept=".json" style="display:none">
+
+      <hr class="divider">
+
+      <!-- Progressive Disclosure: Advanced Safe Settings -->
+      <details class="progressive-settings card-glass tilt-card" style="margin-bottom: 14px;">
+        <summary>Advanced Cryptographic Info & Security</summary>
+        <div style="padding: 12px 18px 18px; font-size: 13px; color: var(--text-1); line-height: 1.6;">
+          <p>• <strong>Cipher:</strong> AES-256 GCM authenticated encryption.</p>
+          <p>• <strong>Key Derivation:</strong> PBKDF2 with SHA-256 and 600,000 iterations.</p>
+          <p>• <strong>Rate Limiting:</strong> 5 failed PIN attempts initiates a 30-second penalty delay.</p>
+          <p>• <strong>Clipboard Hygiene:</strong> Copied passwords are automatically flushed from memory after 20 seconds.</p>
+        </div>
+      </details>
+
+      <!-- Honest Privacy Notice -->
+      <div class="notice card-glass tilt-card">
+        <strong>🛡️ Privacy Notice</strong>
+        <p>Data is stored only on this physical device in your browser's IndexedDB, tied to <code>http://localhost:5173</code>.</p>
+        <p>Without App Lock, anyone who can open this app can read the unlocked passwords. Use per-app PIN locks or the Master App Lock above for full encryption.</p>
+        <p>Clearing browser cookies and storage will wipe local data. Export periodic backups to keep your passwords safe.</p>
+      </div>
+
+      <!-- Mobile App Setup Instructions -->
+      <div class="notice card-glass tilt-card" style="margin-top: 14px; border-color: rgba(34, 199, 165, 0.35);">
+        <strong style="color: var(--mint);">📱 Mobile App Installation</strong>
+        <p>Open this page on your smartphone &rarr; tap <strong>Share</strong> (iOS Safari) or <strong>Menu</strong> (Android Chrome) &rarr; select <strong>"Add to Home Screen"</strong>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       GLOBAL MODAL ENGINE
+       ══════════════════════════════════════════════════════════ -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div id="modal" class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title"></h3>
+        <button id="modal-close" class="btn-modal-close" aria-label="Close">✕</button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Pill -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="vault-crypto.js"></script>
+  <script src="vault-db.js"></script>
+  <script src="vault-bg.js"></script>
+  <script src="vault-app.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    // Command Palette Keyboard Shortcut (⌘K or Ctrl+K)
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const activeSearch = document.querySelector('.screen.active .search-input');
+        if (activeSearch) activeSearch.focus();
+      }
+    });
+  </script>
+</body>
+</html>
